@@ -1,0 +1,19 @@
+# Render Blueprint -- lets you spin up the service from the Render dashboard
+# via "New +" -> "Blueprint", pointing at this repo. Secrets (marked
+# `sync: false`) still need to be entered manually in the Render dashboard
+# after the blueprint creates the service -- they're deliberately not stored
+# in this file, since this file is committed to your repo.
+services:
+  - type: web
+    name: amara-ppd-platform
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python3 models/train_baseline.py"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PPD_APP_SECRET
+        sync: false        # set a real random value in the Render dashboard
+      - key: MONGODB_URI
+        sync: false        # your MongoDB Atlas connection string
+      - key: MONGODB_DB_NAME
+        value: ppd_app      # optional override, this is the default anyway

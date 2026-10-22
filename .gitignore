@@ -1,0 +1,48 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Virtual environments ---
+venv/
+env/
+ppd_env/
+.venv/
+
+# --- Database ---
+*.db
+*.sqlite
+*.sqlite3
+app/ppd_app.db
+
+# --- Environment / secrets ---
+.env
+.env.local
+*.pem
+
+# --- Model artifacts (large, regenerate via training scripts) ---
+models/transformer/
+results/
+*.joblib
+*.bin
+*.safetensors
+
+# --- Raw / large data (regenerate via data/prepare_dataset.py) ---
+data/sample_dataset_for_ppd.xlsx
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# --- Logs ---
+*.log

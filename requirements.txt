@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+pymongo[srv]
+python-jose[cryptography]
+bcrypt
+pydantic[email]
+python-multipart
+pandas
+scikit-learn
+shap
+vaderSentiment
+joblib
+openpyxl
+ torch
+ transformers

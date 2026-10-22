@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amara — postpartum support</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#ffffff;
+    --blush-50:#fff4f7;
+    --blush-100:#ffe4ec;
+    --blush-200:#ffd0dd;
+    --rose-400:#ff7a9c;
+    --rose-500:#f0507a;
+    --rose-600:#df2f68;
+    --rose-700:#b91d53;
+    --rose-900:#5c0e2c;
+    --plum-900:#38101f;
+    --plum-700:#5c2438;
+    --muted:#9a6f80;
+    --line:#f7d9e3;
+    --ok:#4c8c6a;
+    --ok-bg:#eaf5ee;
+    --warn:#c47f1f;
+    --warn-bg:#fdf2e2;
+    --sev:#c22a5c;
+    --sev-bg:#fce7ee;
+    --radius-sm:8px;
+    --radius-md:14px;
+    --radius-lg:26px;
+    --shadow-soft:0 12px 28px -14px rgba(92,14,44,0.18);
+    --shadow-tight:0 4px 12px -6px rgba(92,14,44,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:'Work Sans',-apple-system,sans-serif;
+    background:var(--blush-50); color:var(--plum-900);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wordmark{ font-family:'Fraunces',serif; font-style:italic; font-weight:600; }
+  h1,h2,h3{ font-family:'Fraunces',serif; font-weight:600; margin:0; }
+  ::selection{ background:var(--blush-200); }
+
+  /* ============ decorative blobs ============ */
+  .blob-field{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .blob{ position:absolute; border-radius:50%; filter:blur(2px); opacity:.55; }
+
+  /* ============ AUTH SCREEN ============ */
+  #authScreen{
+    min-height:100vh; display:grid; grid-template-columns:1.05fr 1fr;
+  }
+  @media (max-width:860px){ #authScreen{ grid-template-columns:1fr; } .authPanel{ display:none; } }
+
+  .authPanel{
+    position:relative; background:
+      radial-gradient(120% 140% at 15% 10%, #ffe0ea 0%, transparent 55%),
+      radial-gradient(90% 110% at 90% 85%, #ffc9db 0%, transparent 50%),
+      linear-gradient(155deg, var(--rose-700) 0%, var(--rose-900) 100%);
+    color:#fff; display:flex; flex-direction:column; justify-content:space-between;
+    padding:56px 52px; overflow:hidden;
+  }
+  .authPanel .blob{ background:radial-gradient(circle, #ffffff 0%, transparent 70%); }
+  .authPanel .b1{ width:420px; height:420px; top:-140px; left:-120px; opacity:.10; }
+  .authPanel .b2{ width:300px; height:300px; bottom:-80px; right:-60px; opacity:.12; }
+
+  .authPanel .brand{ position:relative; z-index:1; font-size:56px; font-weight:700; letter-spacing:-0.01em; text-shadow:0 2px 20px rgba(0,0,0,0.15); }
+  .authPanel .brand span{ display:block; font-family:'Work Sans',sans-serif; font-style:normal; font-weight:500; font-size:13px; letter-spacing:.02em; opacity:.75; margin-top:10px; }
+
+  .authPanel .quote{ position:relative; z-index:1; max-width:380px; }
+  .authPanel .quote p{ font-family:'Fraunces',serif; font-size:26px; line-height:1.4; font-weight:500; margin:0 0 14px; }
+  .authPanel .quote small{ font-size:13px; opacity:.7; }
+
+  .authPanel .assurances{ position:relative; z-index:1; display:flex; gap:22px; font-size:12.5px; opacity:.85; }
+  .authPanel .assurances div{ display:flex; align-items:center; gap:7px; }
+  .dot{ width:6px; height:6px; border-radius:50%; background:#ffb3c9; flex:none; }
+
+  .authFormWrap{ display:flex; align-items:center; justify-content:center; padding:40px 24px; }
+  .authbox{ width:100%; max-width:380px; }
+  .authbox .mobile-brand{ display:none; font-size:26px; margin-bottom:22px; }
+  @media (max-width:860px){ .authbox .mobile-brand{ display:block; } }
+  .authbox h2{ font-size:26px; }
+  .authbox p.sub{ color:var(--muted); font-size:14.5px; margin:6px 0 26px; }
+
+  .tabs{ display:flex; background:var(--blush-100); border-radius:100px; padding:4px; margin-bottom:26px; }
+  .tabs button{
+    flex:1; background:none; border:none; padding:9px 0; border-radius:100px; cursor:pointer;
+    font-family:'Work Sans',sans-serif; font-size:13.5px; font-weight:600; color:var(--muted);
+    transition:background .15s, color .15s;
+  }
+  .tabs button.active{ background:#fff; color:var(--rose-700); box-shadow:var(--shadow-tight); }
+
+  label{ font-size:12px; font-weight:600; color:var(--plum-700); display:block; margin-bottom:6px; }
+  input, select{
+    width:100%; padding:12px 14px; margin-bottom:16px; border:1.5px solid var(--line);
+    border-radius:var(--radius-sm); font-family:inherit; font-size:14.5px; background:#fff; color:var(--plum-900);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none; border-color:var(--rose-500); box-shadow:0 0 0 3px var(--blush-100);
+  }
+  button.primary{
+    width:100%; padding:13px; background:linear-gradient(135deg, var(--rose-600), var(--rose-700));
+    color:#fff; border:none; border-radius:var(--radius-sm);
+    font-family:inherit; font-size:14.5px; font-weight:700; cursor:pointer;
+    box-shadow:0 10px 22px -10px rgba(223,47,104,0.55);
+    transition:transform .12s, box-shadow .12s;
+  }
+  button.primary:hover{ transform:translateY(-1px); box-shadow:0 14px 26px -10px rgba(223,47,104,0.65); }
+  button.primary:active{ transform:translateY(0); }
+  button.ghost{
+    background:#fff; border:1.5px solid var(--line); color:var(--plum-700); padding:7px 14px;
+    border-radius:100px; cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:600;
+    transition:border-color .15s, color .15s;
+  }
+  button.ghost:hover{ border-color:var(--rose-400); color:var(--rose-700); }
+  .err{ color:var(--sev); font-size:13px; margin-bottom:12px; background:var(--sev-bg); padding:8px 12px; border-radius:var(--radius-sm); }
+
+  /* ============ APP SHELL ============ */
+  #appScreen{ display:grid; grid-template-columns:236px 1fr; min-height:100vh; }
+  @media (max-width:760px){ #appScreen{ grid-template-columns:1fr; } .sidebar{ display:none; } }
+
+  .sidebar{
+    background:linear-gradient(180deg, var(--rose-900), var(--plum-900));
+    color:#fff; padding:28px 20px; display:flex; flex-direction:column;
+  }
+  .sidebar .brand{ font-size:26px; font-weight:700; margin-bottom:4px; text-shadow:0 2px 14px rgba(0,0,0,0.15); }
+  .sidebar .brand-tag{ font-size:11.5px; opacity:.6; margin-bottom:34px; }
+  .sidebar nav{ display:flex; flex-direction:column; gap:4px; flex:1; }
+  .sidebar nav button{
+    text-align:left; background:none; border:none; color:#fff; opacity:.72;
+    padding:11px 14px; border-radius:var(--radius-sm); cursor:pointer;
+    font-family:'Work Sans',sans-serif; font-size:14px; font-weight:500;
+    display:flex; align-items:center; gap:10px; transition:background .15s, opacity .15s;
+  }
+  .sidebar nav button .ic{ width:16px; text-align:center; }
+  .sidebar nav button:hover{ background:rgba(255,255,255,.08); opacity:.95; }
+  .sidebar nav button.active{ background:rgba(255,255,255,.16); opacity:1; }
+  .sidebar .who{ font-size:12.5px; opacity:.6; border-top:1px solid rgba(255,255,255,.14); padding-top:16px; }
+  .sidebar .who .name{ opacity:1; font-weight:600; display:block; margin-bottom:2px; color:#fff; }
+
+  .availToggle{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:rgba(255,255,255,.08); border-radius:100px; padding:8px 14px;
+    margin-bottom:16px; cursor:pointer; border:none; width:100%; font-family:inherit;
+    transition:background .15s;
+  }
+  .availToggle:hover{ background:rgba(255,255,255,.14); }
+  .availToggle .avLabel{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:#fff; }
+  .availToggle .avDot{ width:8px; height:8px; border-radius:50%; flex:none; }
+  .availToggle.online .avDot{ background:#4c8c6a; box-shadow:0 0 0 3px rgba(76,140,106,.25); }
+  .availToggle.offline .avDot{ background:#9a6f80; }
+  .availToggle .avSwitch{
+    width:34px; height:19px; border-radius:100px; background:rgba(255,255,255,.2);
+    position:relative; flex:none; transition:background .15s;
+  }
+  .availToggle.online .avSwitch{ background:var(--ok); }
+  .availToggle .avSwitch::after{
+    content:''; position:absolute; top:2px; left:2px; width:15px; height:15px;
+    border-radius:50%; background:#fff; transition:left .15s;
+  }
+  .availToggle.online .avSwitch::after{ left:17px; }
+
+  .availBadge{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; }
+  .availBadge .avDot{ width:6px; height:6px; border-radius:50%; }
+  .availBadge.online{ color:var(--ok); } .availBadge.online .avDot{ background:var(--ok); }
+  .availBadge.offline{ color:var(--muted); } .availBadge.offline .avDot{ background:var(--muted); }
+  .sidebar .logout{ margin-top:10px; width:100%; }
+
+  .main{ padding:36px 44px; max-width:840px; }
+  @media (max-width:760px){ .main{ padding:22px 18px; } }
+  .pageTitle{ font-size:26px; margin-bottom:4px; }
+  .pageSub{ color:var(--muted); font-size:14px; margin-bottom:28px; }
+
+  /* ============ CHAT ============ */
+  .welcomeCard{
+    background:linear-gradient(135deg, #fff, var(--blush-50));
+    border:1.5px solid var(--line); border-radius:var(--radius-lg);
+    padding:22px 24px; margin-bottom:22px; display:flex; gap:16px; align-items:flex-start;
+  }
+  .welcomeCard .badge{
+    width:38px; height:38px; border-radius:50%; flex:none;
+    background:linear-gradient(135deg, var(--rose-500), var(--rose-700));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-family:'Fraunces',serif; font-style:italic; font-weight:600;
+  }
+  .welcomeCard p{ margin:0; font-size:14.5px; line-height:1.55; color:var(--plum-700); }
+
+  #chatlog{ display:flex; flex-direction:column; gap:16px; margin-bottom:18px; }
+  .bubble{ max-width:80%; padding:14px 17px; border-radius:var(--radius-md); font-size:15px; line-height:1.55; animation:rise .25s ease; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+  .bubble.mother{
+    align-self:flex-end; color:#fff; border-bottom-right-radius:4px;
+    background:linear-gradient(135deg, var(--rose-500), var(--rose-700));
+    box-shadow:0 8px 18px -10px rgba(223,47,104,.5);
+  }
+  .bubble.bot{ align-self:flex-start; background:#fff; border:1.5px solid var(--line); border-bottom-left-radius:4px; box-shadow:var(--shadow-tight); }
+  .tagpill{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700;
+    padding:4px 11px 4px 9px; border-radius:100px; margin-bottom:9px;
+  }
+  .tagpill .dot2{ width:6px; height:6px; border-radius:50%; }
+  .tagpill.normal{ background:var(--ok-bg); color:var(--ok); } .tagpill.normal .dot2{ background:var(--ok); }
+  .tagpill.mild{ background:var(--warn-bg); color:var(--warn); } .tagpill.mild .dot2{ background:var(--warn); }
+  .tagpill.severe{ background:var(--sev-bg); color:var(--sev); } .tagpill.severe .dot2{ background:var(--sev); }
+  .explain{ font-size:12px; color:var(--muted); margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
+  .explain .lbl{ font-weight:600; color:var(--plum-700); margin-right:2px; }
+  .explain .word{ display:inline-block; background:var(--blush-100); color:var(--rose-700); border-radius:6px; padding:2px 8px; margin:3px 4px 0 0; font-weight:600; font-size:11.5px; }
+
+  /* ============ DOCTOR PICKER (inline in chat) ============ */
+  .doctorCard{ background:var(--blush-50); border:1.5px solid var(--line); border-radius:var(--radius-md); padding:14px; margin-top:12px; }
+  .doctorRow{ display:flex; align-items:center; gap:12px; padding:10px 4px; }
+  .doctorRow + .doctorRow{ border-top:1px solid var(--line); }
+  .doctorRow .davatar{ width:36px; height:36px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px; background:linear-gradient(135deg, var(--rose-500), var(--rose-700)); }
+  .doctorRow .dinfo{ flex:1; min-width:0; }
+  .doctorRow .dname{ font-weight:700; font-size:14px; color:var(--plum-900); }
+  .doctorRow .dspec{ font-size:12px; color:var(--muted); }
+  .doctorRow .dactions{ display:flex; gap:6px; flex:none; }
+  .doctorRow .dactions button{ font-size:12px; padding:6px 12px; }
+  .bookForm{ background:#fff; border:1.5px solid var(--line); border-radius:var(--radius-sm); padding:12px; margin-top:8px; }
+  .bookForm label{ font-size:11px; }
+  .bookForm input, .bookForm select{ margin-bottom:10px; padding:8px 10px; font-size:13px; }
+  .bookForm .actions{ display:flex; gap:8px; }
+  .bookForm button{ font-size:12.5px; padding:8px 14px; width:auto; }
+  .bookedNote{ font-size:12.5px; color:var(--ok); font-weight:600; margin-top:6px; }
+
+  .chatinput{ display:flex; gap:10px; background:#fff; border:1.5px solid var(--line); border-radius:var(--radius-lg); padding:8px 8px 8px 18px; box-shadow:var(--shadow-tight); }
+  .chatinput textarea{ flex:1; resize:none; border:none; outline:none; font-family:inherit; font-size:14.5px; padding:8px 0; background:transparent; }
+  .chatinput button{ width:auto; padding:0 20px; border-radius:var(--radius-md); flex:none; }
+
+  /* ============ COMMUNITY ============ */
+  .composer{ background:#fff; border:1.5px solid var(--line); border-radius:var(--radius-lg); padding:16px 18px; margin-bottom:26px; box-shadow:var(--shadow-tight); }
+  .composer textarea{ width:100%; border:none; outline:none; font-family:inherit; font-size:14.5px; resize:none; margin-bottom:10px; }
+  .composer-foot{ display:flex; justify-content:flex-end; }
+  .composer-foot button.primary{ width:auto; padding:9px 20px; font-size:13.5px; }
+
+  .post{ background:#fff; border:1.5px solid var(--line); border-radius:var(--radius-lg); padding:20px 22px; margin-bottom:16px; }
+  .post .head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .avatar{ width:34px; height:34px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px; }
+  .post .meta{ font-size:12px; color:var(--muted); }
+  .post .meta .author{ color:var(--plum-900); font-weight:700; font-size:13.5px; display:block; }
+  .post .body{ font-size:14.5px; line-height:1.6; color:var(--plum-700); }
+  .reply{ margin-top:12px; padding:12px 14px; border-radius:var(--radius-sm); background:var(--blush-50); font-size:13.5px; }
+  .reply .meta{ font-size:11px; margin-bottom:3px; }
+  .reply .meta .author{ font-size:12.5px; }
+  .replybox{ display:flex; gap:8px; margin-top:14px; }
+  .replybox input{ margin-bottom:0; }
+  .replybox button{ width:auto; padding:0 16px; font-size:12.5px; }
+
+  /* ============ TABLES / STATS ============ */
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; background:#fff; border-radius:var(--radius-md); overflow:hidden; box-shadow:var(--shadow-tight); }
+  th, td{ text-align:left; padding:13px 16px; border-bottom:1px solid var(--line); }
+  th{ color:var(--muted); font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; background:var(--blush-50); }
+  tr:last-child td{ border-bottom:none; }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:30px; }
+  .stat{ border-radius:var(--radius-md); padding:20px; color:#fff; position:relative; overflow:hidden; }
+  .stat .num{ font-family:'Fraunces',serif; font-size:32px; font-weight:600; }
+  .stat .lbl{ font-size:12px; opacity:.85; margin-top:2px; }
+  .stat.s1{ background:linear-gradient(135deg, var(--rose-500), var(--rose-700)); }
+  .stat.s2{ background:linear-gradient(135deg, #ff9db5, var(--rose-500)); }
+  .stat.s3{ background:linear-gradient(135deg, var(--plum-700), var(--rose-900)); }
+  .stat.s4{ background:linear-gradient(135deg, var(--warn), #a85f10); }
+  .stat.s5{ background:linear-gradient(135deg, var(--sev), var(--rose-900)); }
+
+  .empty{ color:var(--muted); font-size:14.5px; padding:36px 20px; text-align:center; background:#fff; border:1.5px dashed var(--line); border-radius:var(--radius-lg); }
+  .empty .big{ font-family:'Fraunces',serif; font-style:italic; font-size:19px; color:var(--rose-700); display:block; margin-bottom:6px; }
+
+  .hidden{ display:none !important; }
+
+  #userbar{ display:flex; gap:14px; align-items:center; font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="authScreen">
+  <div class="authPanel">
+    <div class="blob-field"><div class="blob b1"></div><div class="blob b2"></div></div>
+    <div class="brand wordmark">Amara<span>postpartum support &amp; community</span></div>
+    <div class="quote">
+      <p>&ldquo;Some days are heavy. You don't have to carry them alone.&rdquo;</p>
+      <small>A private space to talk, and mothers who understand.</small>
+    </div>
+    <div class="assurances">
+      <div><span class="dot"></span>Private, judgment-free chat</div>
+      <div><span class="dot"></span>Doctors on standby</div>
+    </div>
+  </div>
+
+  <div class="authFormWrap">
+    <div class="authbox">
+      <div class="mobile-brand wordmark">Amara</div>
+      <h2>Welcome</h2>
+      <p class="sub">Log in, or create your account to get started.</p>
+      <div class="tabs">
+        <button id="tabLogin" class="active" onclick="switchTab('login')">Log in</button>
+        <button id="tabRegister" onclick="switchTab('register')">Sign up</button>
+      </div>
+
+      <div id="loginForm">
+        <label>Email</label>
+        <input id="loginEmail" type="email" placeholder="you@example.com">
+        <label>Password</label>
+        <input id="loginPassword" type="password" placeholder="••••••••">
+        <div class="err hidden" id="loginErr"></div>
+        <button class="primary" onclick="login()">Log in</button>
+      </div>
+
+      <div id="registerForm" class="hidden">
+        <label>Name</label>
+        <input id="regName" placeholder="Your name">
+        <label>Email</label>
+        <input id="regEmail" type="email" placeholder="you@example.com">
+        <label>Password</label>
+        <input id="regPassword" type="password" placeholder="At least 6 characters">
+        <label>I am a</label>
+        <select id="regRole" onchange="toggleSpecialty()">
+          <option value="mother">Mother</option>
+          <option value="doctor">Doctor</option>
+        </select>
+        <div id="specialtyWrap" class="hidden">
+          <label>Specialty</label>
+          <input id="regSpecialty" placeholder="e.g. Perinatal Psychiatry">
+          <label>Qualification <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <input id="regQualification" placeholder="e.g. MD Psychiatry">
+          <label>Clinic / hospital name <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <input id="regClinicName" placeholder="e.g. Sunrise Clinic">
+          <label>Clinic address <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <input id="regClinicAddress" placeholder="e.g. Mumbai - Panvel">
+          <p style="font-size:12px;color:var(--muted);margin:-8px 0 14px;">You can add these later, and set your available days/hours, from your Verification tab after signing up.</p>
+        </div>
+        <div id="motherExtraWrap">
+          <label>Hobbies / interests</label>
+          <input id="regHobbies" placeholder="e.g. reading, painting, gardening" required>
+          <label>A little about you</label>
+          <input id="regBackground" placeholder="Anything you'd like us to know" required>
+          <label>How should I talk to you? <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <select id="regTone">
+            <option value="warm">Warm &amp; nurturing</option>
+            <option value="practical">Calm &amp; practical</option>
+            <option value="brief">Brief &amp; to the point</option>
+          </select>
+        </div>
+        <div class="err hidden" id="regErr"></div>
+        <button class="primary" onclick="register()">Create account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="hidden">
+  <div class="sidebar">
+    <div class="brand wordmark">Amara</div>
+    <div class="brand-tag">postpartum support</div>
+    <nav id="navBar"></nav>
+    <div id="availabilityToggle"></div>
+    <div class="who">
+      <span class="name" id="whoami"></span>
+      <span id="whorole"></span>
+    </div>
+    <button class="ghost logout" onclick="logout()">Log out</button>
+  </div>
+  <div class="main">
+    <div id="view"></div>
+  </div>
+</div>
+
+<script>
+const API = "";
+let TOKEN = localStorage.getItem("ppd_token") || null;
+let ROLE = localStorage.getItem("ppd_role") || null;
+let NAME = localStorage.getItem("ppd_name") || null;
+let DOCTOR_CACHE = {}; // id -> doctor object, populated as doctor cards render, used by the booking form
+
+const AVATAR_COLORS = ['#df2f68','#ff7a9c','#b91d53','#f0507a','#9a3d63'];
+function avatarColor(name){
+  let h = 0; for(const c of (name||'?')) h = (h*31 + c.charCodeAt(0)) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[h];
+}
+function initials(name){
+  return (name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+}
+
+function switchTab(t){
+  document.getElementById('tabLogin').classList.toggle('active', t==='login');
+  document.getElementById('tabRegister').classList.toggle('active', t==='register');
+  document.getElementById('loginForm').classList.toggle('hidden', t!=='login');
+  document.getElementById('registerForm').classList.toggle('hidden', t!=='register');
+}
+function toggleSpecialty(){
+  const isDoctor = document.getElementById('regRole').value === 'doctor';
+  document.getElementById('specialtyWrap').classList.toggle('hidden', !isDoctor);
+  document.getElementById('motherExtraWrap').classList.toggle('hidden', isDoctor);
+}
+
+async function api(path, method='GET', body=null, auth=true){
+  const headers = {'Content-Type':'application/json'};
+  if(auth && TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+  const res = await fetch(API+path, {method, headers, body: body?JSON.stringify(body):null});
+  if(!res.ok){
+    const e = await res.json().catch(()=>({detail:res.statusText}));
+    throw new Error(extractErrorMessage(e));
+  }
+  return res.json();
+}
+
+// FastAPI returns errors in two shapes:
+//   - a plain string, e.g. {"detail": "Invalid email or password"}
+//   - a list of validation errors, e.g. {"detail": [{"msg": "String should have at least 6 characters", "loc": [...], ...}, ...]}
+// This normalizes both into a single readable string instead of "[object Object]".
+function extractErrorMessage(e){
+  const d = e.detail;
+  if(!d) return 'Something went wrong. Please try again.';
+  if(typeof d === 'string') return d;
+  if(Array.isArray(d)){
+    return d.map(item => {
+      if(typeof item === 'string') return item;
+      const field = (item.loc && item.loc.length) ? item.loc[item.loc.length-1] : '';
+      return field ? `${field}: ${item.msg}` : item.msg;
+    }).join('; ');
+  }
+  return 'Something went wrong. Please try again.';
+}
+
+async function login(){
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.classList.add('hidden');
+  try{
+    const data = await api('/auth/login','POST',{email,password}, false);
+    setSession(data);
+  }catch(e){ errEl.textContent = e.message; errEl.classList.remove('hidden'); }
+}
+
+async function register(){
+  const payload = {
+    name: document.getElementById('regName').value,
+    email: document.getElementById('regEmail').value,
+    password: document.getElementById('regPassword').value,
+    role: document.getElementById('regRole').value,
+    specialty: document.getElementById('regSpecialty').value || null,
+    qualification: document.getElementById('regQualification').value || null,
+    clinic_name: document.getElementById('regClinicName').value || null,
+    clinic_address: document.getElementById('regClinicAddress').value || null,
+    hobbies: document.getElementById('regHobbies').value || null,
+    background_info: document.getElementById('regBackground').value || null,
+    tone_preference: document.getElementById('regTone').value || 'warm',
+  };
+  const errEl = document.getElementById('regErr');
+  errEl.classList.add('hidden');
+  if(payload.role === 'mother' && (!payload.hobbies || !payload.hobbies.trim() || !payload.background_info || !payload.background_info.trim())){
+    errEl.textContent = 'Hobbies / interests and "a little about you" are both required -- they help us personalize your support.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  try{
+    const data = await api('/auth/register','POST',payload, false);
+    setSession(data);
+  }catch(e){ errEl.textContent = e.message; errEl.classList.remove('hidden'); }
+}
+
+function setSession(data){
+  TOKEN = data.access_token; ROLE = data.role; NAME = data.name;
+  localStorage.setItem('ppd_token', TOKEN);
+  localStorage.setItem('ppd_role', ROLE);
+  localStorage.setItem('ppd_name', NAME);
+  boot();
+}
+function logout(){
+  TOKEN=null; ROLE=null; NAME=null; localStorage.clear();
+  boot();
+}
+
+function boot(){
+  if(!TOKEN){
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('appScreen').classList.add('hidden');
+    return;
+  }
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  document.getElementById('whoami').textContent = NAME;
+  document.getElementById('whorole').textContent = ROLE;
+  renderNav();
+  if(ROLE === 'doctor') renderAvailabilityToggle();
+  else document.getElementById('availabilityToggle').innerHTML = '';
+}
+
+async function renderAvailabilityToggle(){
+  const el = document.getElementById('availabilityToggle');
+  let me;
+  try{ me = await api('/auth/me'); }catch(e){ return; }
+  drawAvailabilityToggle(el, me.availability_status || 'offline');
+}
+
+function drawAvailabilityToggle(el, status){
+  const isOnline = status === 'online';
+  el.innerHTML = `<button class="availToggle ${isOnline?'online':'offline'}" onclick="toggleAvailability('${isOnline?'offline':'online'}')">
+    <span class="avLabel"><span class="avDot"></span>${isOnline ? 'Online' : 'Offline'}</span>
+    <span class="avSwitch"></span>
+  </button>`;
+}
+
+async function toggleAvailability(newStatus){
+  try{
+    const res = await api('/doctor/availability', 'PUT', { status: newStatus });
+    drawAvailabilityToggle(document.getElementById('availabilityToggle'), res.availability_status);
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+const NAV_ICONS = {chat:'&#9825;', community:'&#9737;', appointments:'&#9873;', referrals:'&#9906;', stats:'&#9673;', users:'&#9776;', verification:'&#9989;', verifications:'&#9989;'};
+function renderNav(){
+  const nav = document.getElementById('navBar');
+  let tabs = [];
+  if(ROLE === 'mother') tabs = [['chat','Chat'], ['community','Community'], ['appointments','Appointments']];
+  if(ROLE === 'doctor') tabs = [['referrals','Referrals'], ['appointments','Appointments'], ['verification','Verification']];
+  if(ROLE === 'admin') tabs = [['stats','Overview'], ['users','Users'], ['verifications','Verifications']];
+  nav.innerHTML = tabs.map((t,i)=>`<button class="${i===0?'active':''}" data-tab="${t[0]}" onclick="showTab('${t[0]}')"><span class="ic">${NAV_ICONS[t[0]]||''}</span>${t[1]}</button>`).join('');
+  showTab(tabs[0][0]);
+}
+
+function showTab(tab){
+  document.querySelectorAll('#navBar button').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  if(tab==='chat') renderChat();
+  if(tab==='community') renderCommunity();
+  if(tab==='referrals') renderReferrals();
+  if(tab==='appointments') renderAppointments();
+  if(tab==='stats') renderStats();
+  if(tab==='users') renderUsers();
+  if(tab==='verification') renderDoctorVerification();
+  if(tab==='verifications') renderAdminVerifications();
+}
+
+/* ---------------- APPOINTMENTS ---------------- */
+async function renderAppointments(){
+  const view = document.getElementById('view');
+  view.innerHTML = `<h1 class="pageTitle">Appointments</h1><p class="pageSub">${ROLE==='mother' ? 'Your requested and confirmed appointments.' : 'Appointment requests from mothers.'}</p><div id="apptTable"></div>`;
+  const el = document.getElementById('apptTable');
+
+  const whenAndPlace = a => {
+    const when = `${a.appointment_date || '—'}${a.appointment_time ? ' at ' + a.appointment_time : ''}`;
+    if(a.mode === 'online'){
+      const link = a.video_call_url ? `<br><a href="${a.video_call_url}" target="_blank" rel="noopener" style="font-size:12px;">Join video call</a>` : '';
+      return `${when}${link}`;
+    }
+    const place = a.clinic_address ? `<br><span style="font-size:12px;color:var(--muted);">${a.clinic_name ? a.clinic_name + ', ' : ''}${a.clinic_address}</span>` : '';
+    return `${when}${place}`;
+  };
+
+  if(ROLE === 'mother'){
+    const appts = await api('/appointments');
+    if(!appts.length){ el.innerHTML = `<div class="empty"><span class="big">No appointments yet.</span>Ask the chat to connect you with a doctor to get started.</div>`; return; }
+    el.innerHTML = `<table><thead><tr><th>Doctor</th><th>Type</th><th>When &amp; where</th><th>Status</th></tr></thead><tbody>
+      ${appts.map(a=>`<tr>
+        <td>${a.doctor_name}${a.specialty?` · ${a.specialty}`:''}${a.qualification?`<br><span style="font-size:11.5px;color:var(--muted);">${a.qualification}</span>`:''}</td>
+        <td>${a.mode === 'online' ? 'Online' : 'In-person'}</td>
+        <td>${whenAndPlace(a)}</td>
+        <td><span class="tagpill ${a.status==='confirmed'?'normal':'mild'}"><span class="dot2"></span>${a.status}</span></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  } else {
+    const appts = await api('/doctor/appointments');
+    if(!appts.length){ el.innerHTML = `<div class="empty"><span class="big">No appointment requests yet.</span>They'll appear here when a mother books one.</div>`; return; }
+    el.innerHTML = `<table><thead><tr><th>Mother</th><th>Type</th><th>When &amp; where</th><th>Status</th><th></th></tr></thead><tbody>
+      ${appts.map(a=>`<tr>
+        <td>${a.mother_name}${a.notes?`<br><span style="font-size:11.5px;color:var(--muted);">"${a.notes}"</span>`:''}</td>
+        <td>${a.mode === 'online' ? 'Online' : 'In-person'}</td>
+        <td>${whenAndPlace(a)}</td>
+        <td><span class="tagpill ${a.status==='confirmed'?'normal':'mild'}"><span class="dot2"></span>${a.status}</span></td>
+        <td>${a.status==='requested' ? `<button class="ghost" onclick="confirmDoctorAppointment(${a.id})">Confirm</button>` : ''}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }
+}
+async function confirmDoctorAppointment(id){
+  await api(`/doctor/appointments/${id}/confirm`,'POST');
+  await renderAppointments();
+}
+
+/* ---------------- CHAT ---------------- */
+async function renderChat(){
+  const view = document.getElementById('view');
+  view.innerHTML = `
+    <h1 class="pageTitle">Chat</h1>
+    <p class="pageSub">Just between us — no one else on Amara can see this.</p>
+    <div id="chatlog"></div>
+    <div class="chatinput">
+      <textarea id="chatInput" rows="1" placeholder="Share how you're feeling today..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+      <button class="primary" onclick="sendChat()">Send</button>
+    </div>`;
+  const history = await api('/chat/history');
+  const log = document.getElementById('chatlog');
+  if(!history.length){
+    log.innerHTML = `<div class="welcomeCard">
+      <div class="badge wordmark">A</div>
+      <p>Hi, I'm here to listen. Tell me a little about how today has felt —
+      I'll respond gently, and let you know if talking to a doctor here might help.</p>
+    </div>`;
+  } else {
+    history.forEach(m => appendBubble(m));
+  }
+  log.scrollTop = log.scrollHeight;
+}
+
+function pillClass(name){
+  if(name==='Normal') return 'normal';
+  if(name==='Mild Distress') return 'mild';
+  return 'severe';
+}
+
+function appendBubble(m){
+  const log = document.getElementById('chatlog');
+  const welcome = log.querySelector('.welcomeCard');
+  if(welcome) welcome.remove();
+  const div = document.createElement('div');
+  div.className = 'bubble ' + (m.sender==='mother'?'mother':'bot');
+  if(m.sender === 'mother'){
+    div.textContent = m.text;
+  } else {
+    let html = '';
+    if(m.label_name){
+      html += `<span class="tagpill ${pillClass(m.label_name)}"><span class="dot2"></span>${m.label_name} · ${Math.round((m.confidence||0)*100)}%</span><br>`;
+    }
+    html += m.text;
+    if(m.explanation && m.explanation.length){
+      html += `<div class="explain"><span class="lbl">Why:</span>` + m.explanation.slice(0,6).map(w=>`<span class="word">${w.word}</span>`).join('') + `</div>`;
+    }
+    div.innerHTML = html;
+    if(m.show_doctors && m.doctors && m.doctors.length){
+      const card = document.createElement('div');
+      card.className = 'doctorCard';
+      m.doctors.forEach(d => { DOCTOR_CACHE[d.id] = d; });
+      card.innerHTML = m.doctors.map(d => `
+        <div class="doctorRow" data-doctor-id="${d.id}">
+          <div class="davatar">${initials(d.name)}</div>
+          <div class="dinfo">
+            <div class="dname">${d.name}</div>
+            <div class="dspec">${d.specialty || 'General'}
+              <span class="availBadge ${d.availability_status === 'online' ? 'online' : 'offline'}" style="margin-left:8px;">
+                <span class="avDot"></span>${d.availability_status === 'online' ? 'Online now' : 'Offline'}
+              </span>
+            </div>
+          </div>
+          <div class="dactions">
+            <button class="ghost" onclick="showBookForm(${d.id}, this)">Book appointment</button>
+          </div>
+        </div>`).join('');
+      div.appendChild(card);
+    }
+  }
+  log.appendChild(div);
+}
+
+function showBookForm(doctorId, btnEl){
+  const row = btnEl.closest('.doctorRow');
+  if(row.querySelector('.bookForm')) return; // already open
+  const d = DOCTOR_CACHE[doctorId] || {};
+  const days = d.available_days || ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const todayStr = new Date().toISOString().split('T')[0];
+  const form = document.createElement('div');
+  form.className = 'bookForm';
+  form.style.flexBasis = '100%';
+  form.innerHTML = `
+    <label>Appointment type</label>
+    <select class="modeSel" onchange="onBookModeChange(this)">
+      <option value="online">Online</option>
+      <option value="offline">In-person</option>
+    </select>
+    <div class="clinicInfo" style="display:none;font-size:12.5px;color:var(--muted);background:var(--blush-50);padding:8px 10px;border-radius:8px;margin-bottom:10px;">
+      ${d.qualification ? `<div>${d.qualification}</div>` : ''}
+      ${d.clinic_name ? `<div>${d.clinic_name}</div>` : ''}
+      ${d.clinic_address ? `<div>${d.clinic_address}</div>` : ''}
+      ${!d.qualification && !d.clinic_name && !d.clinic_address ? `<div>This doctor hasn't added clinic details yet.</div>` : ''}
+    </div>
+    <label>Available days: ${days.join(', ')}</label>
+    <input type="date" class="dateInput" min="${todayStr}">
+    <label>Time (between ${d.available_start_time || '09:00'} and ${d.available_end_time || '17:00'})</label>
+    <input type="time" class="timeInput" min="${d.available_start_time || '09:00'}" max="${d.available_end_time || '17:00'}">
+    <label>Notes for the doctor <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+    <input class="notesInput" placeholder="Anything you'd like the doctor to know">
+    <div class="err hidden bookErr"></div>
+    <div class="actions">
+      <button class="primary" onclick="confirmBooking(${doctorId}, this)">Request appointment</button>
+      <button class="ghost" onclick="this.closest('.bookForm').remove()">Cancel</button>
+    </div>`;
+  row.appendChild(form);
+  row.style.flexWrap = 'wrap';
+}
+
+function onBookModeChange(selectEl){
+  const form = selectEl.closest('.bookForm');
+  form.querySelector('.clinicInfo').style.display = selectEl.value === 'offline' ? 'block' : 'none';
+}
+
+async function confirmBooking(doctorId, btnEl){
+  const form = btnEl.closest('.bookForm');
+  const mode = form.querySelector('.modeSel').value;
+  const date = form.querySelector('.dateInput').value;
+  const time = form.querySelector('.timeInput').value;
+  const notes = form.querySelector('.notesInput').value.trim();
+  const errEl = form.querySelector('.bookErr');
+  errEl.classList.add('hidden');
+  if(!date || !time){
+    errEl.textContent = 'Please choose both a date and a time.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  try{
+    const res = await api('/appointments','POST',{
+      doctor_id: doctorId, mode,
+      appointment_date: date, appointment_time: time,
+      notes: notes || null,
+    });
+    let extra = '';
+    if(res.mode === 'online' && res.video_call_url){
+      extra = `<br>Video call link: <a href="${res.video_call_url}" target="_blank" rel="noopener">${res.video_call_url}</a> (opens at your appointment time, no sign-up needed)`;
+    } else if(res.mode === 'offline' && res.clinic_address){
+      extra = `<br>${res.clinic_name ? res.clinic_name + ', ' : ''}${res.clinic_address}`;
+    }
+    form.innerHTML = `<div class="bookedNote">✓ Requested — ${res.mode === 'online' ? 'Online' : 'In-person'} with ${res.doctor_name} on ${date} at ${time}. You'll see it under Appointments once confirmed.${extra}</div>`;
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  appendBubble({sender:'mother', text});
+  input.value = '';
+
+  const log = document.getElementById('chatlog');
+  const typingEl = document.createElement('div');
+  typingEl.className = 'bubble bot';
+  typingEl.id = 'typingIndicator';
+  typingEl.innerHTML = `<span style="color:var(--muted);font-style:italic;">thinking...</span>`;
+  log.appendChild(typingEl);
+  log.scrollTop = 999999;
+
+  try{
+    const res = await api('/chat','POST',{text});
+    typingEl.remove();
+    appendBubble({sender:'bot', text:res.recommendation, label_name:res.label_name, confidence:res.confidence, explanation:res.explanation, show_doctors:res.show_doctors, doctors:res.doctors});
+  }catch(e){
+    typingEl.remove();
+    appendBubble({sender:'bot', text: 'Something went wrong reaching the server: ' + e.message + '. Try logging out and back in if this keeps happening.'});
+  }
+  document.getElementById('chatlog').scrollTop = 999999;
+}
+
+/* ---------------- COMMUNITY ---------------- */
+async function renderCommunity(){
+  const view = document.getElementById('view');
+  view.innerHTML = `
+    <h1 class="pageTitle">Community</h1>
+    <p class="pageSub">A shared space — separate from your private chat.</p>
+    <div class="composer">
+      <textarea id="postInput" rows="2" placeholder="Share something with other mothers..."></textarea>
+      <div class="composer-foot"><button class="primary" onclick="submitPost()">Post</button></div>
+    </div>
+    <div id="posts"></div>`;
+  await loadPosts();
+}
+async function loadPosts(){
+  const posts = await api('/community/posts');
+  const el = document.getElementById('posts');
+  if(!posts.length){
+    el.innerHTML = `<div class="empty"><span class="big">It's quiet here so far.</span>Be the first to say hello.</div>`;
+    return;
+  }
+  el.innerHTML = posts.map(p => `
+    <div class="post">
+      <div class="head">
+        <div class="avatar" style="background:${avatarColor(p.author)}">${initials(p.author)}</div>
+        <div class="meta"><span class="author">${p.author}</span>${new Date(p.created_at).toLocaleString()}</div>
+      </div>
+      <div class="body">${p.text}</div>
+      ${p.replies.map(r=>`<div class="reply"><div class="meta"><span class="author">${r.author}</span></div>${r.text}</div>`).join('')}
+      <div class="replybox">
+        <input placeholder="Write a reply..." id="reply-${p.id}">
+        <button class="ghost" onclick="submitReply(${p.id})">Reply</button>
+      </div>
+    </div>`).join('');
+}
+async function submitPost(){
+  const input = document.getElementById('postInput');
+  if(!input.value.trim()) return;
+  await api('/community/posts','POST',{text:input.value.trim()});
+  input.value='';
+  await loadPosts();
+}
+async function submitReply(postId){
+  const input = document.getElementById('reply-'+postId);
+  if(!input.value.trim()) return;
+  await api(`/community/posts/${postId}/replies`,'POST',{text:input.value.trim()});
+  await loadPosts();
+}
+
+/* ---------------- DOCTOR ---------------- */
+async function renderReferrals(){
+  const view = document.getElementById('view');
+  view.innerHTML = `<h1 class="pageTitle">Referrals</h1><p class="pageSub">Mothers flagged as emotionally distressed, waiting for a doctor.</p><div id="refTable"></div>`;
+  const el = document.getElementById('refTable');
+  let refs;
+  try{
+    refs = await api('/doctor/referrals');
+  }catch(e){
+    el.innerHTML = `<div class="empty"><span class="big">Verification required.</span>${e.message} Head to the Verification tab to get started.</div>`;
+    return;
+  }
+  if(!refs.length){ el.innerHTML = `<div class="empty"><span class="big">No referrals right now.</span>New ones will appear here automatically.</div>`; return; }
+  el.innerHTML = `<table><thead><tr><th>Mother</th><th>Message</th><th>Status</th><th></th></tr></thead><tbody>
+    ${refs.map(r=>`<tr>
+      <td>${r.mother_name}</td>
+      <td>${(r.trigger_message||'').slice(0,60)}</td>
+      <td>
+        <span class="tagpill ${r.status==='accepted'?'normal':'mild'}"><span class="dot2"></span>${r.status}</span>
+        ${r.unclaimed ? `<span class="tagpill severe" style="margin-left:6px;"><span class="dot2"></span>Unclaimed</span>` : ''}
+      </td>
+      <td>${r.status==='pending' ? `<button class="ghost" onclick="acceptReferral(${r.id})">${r.unclaimed ? 'Claim & accept' : 'Accept'}</button>` : ''}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+async function acceptReferral(id){
+  await api(`/doctor/referrals/${id}/accept`,'POST');
+  await renderReferrals();
+}
+
+/* ---------------- DOCTOR VERIFICATION ---------------- */
+async function renderDoctorVerification(){
+  const view = document.getElementById('view');
+  view.innerHTML = `<h1 class="pageTitle">Verification</h1><p class="pageSub">Mothers can only be connected with verified doctors.</p><div id="verifBox"></div><div id="profileBox" style="margin-top:26px;"></div>`;
+  const el = document.getElementById('verifBox');
+  const status = await api('/doctor/verification/status');
+  renderVerificationStatus(el, status);
+  await renderDoctorProfileEditor(document.getElementById('profileBox'));
+}
+
+async function renderDoctorProfileEditor(el){
+  const me = await api('/auth/me');
+  const days = me.available_days || [];
+  const dayOpts = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  el.innerHTML = `
+    <h3 style="margin-bottom:14px;">Your profile &amp; availability</h3>
+    <div class="composer">
+      <label>Qualification</label>
+      <input id="profQualification" value="${me.qualification || ''}" placeholder="e.g. MD Psychiatry">
+      <label>Clinic / hospital name</label>
+      <input id="profClinicName" value="${me.clinic_name || ''}" placeholder="e.g. Sunrise Clinic">
+      <label>Clinic address</label>
+      <input id="profClinicAddress" value="${me.clinic_address || ''}" placeholder="e.g. Mumbai - Panvel">
+      <label>Available days</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+        ${dayOpts.map(d => `<label style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:500;color:var(--plum-700);background:var(--blush-50);padding:6px 10px;border-radius:100px;">
+          <input type="checkbox" class="profDay" value="${d}" ${days.includes(d)?'checked':''} style="margin:0;width:auto;">${d}
+        </label>`).join('')}
+      </div>
+      <label>Available from</label>
+      <input type="time" id="profStartTime" value="${me.available_start_time || '09:00'}">
+      <label>Available until</label>
+      <input type="time" id="profEndTime" value="${me.available_end_time || '17:00'}">
+      <div class="err hidden" id="profErr"></div>
+      <div id="profSaved" style="display:none;color:var(--ok);font-size:12.5px;font-weight:600;margin-bottom:10px;">Saved.</div>
+      <div class="composer-foot"><button class="primary" style="width:auto;padding:9px 20px;" onclick="saveDoctorProfile()">Save</button></div>
+    </div>`;
+}
+
+async function saveDoctorProfile(){
+  const errEl = document.getElementById('profErr');
+  const savedEl = document.getElementById('profSaved');
+  errEl.classList.add('hidden');
+  savedEl.style.display = 'none';
+  const selectedDays = Array.from(document.querySelectorAll('.profDay:checked')).map(c => c.value);
+  const payload = {
+    qualification: document.getElementById('profQualification').value || null,
+    clinic_name: document.getElementById('profClinicName').value || null,
+    clinic_address: document.getElementById('profClinicAddress').value || null,
+    available_days: selectedDays,
+    available_start_time: document.getElementById('profStartTime').value || null,
+    available_end_time: document.getElementById('profEndTime').value || null,
+  };
+  try{
+    await api('/doctor/profile', 'PUT', payload);
+    savedEl.style.display = 'block';
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
+function renderVerificationStatus(el, status){
+  const s = status.verification_status;
+  if(s === 'verified'){
+    el.innerHTML = `<div class="empty"><span class="big" style="color:var(--ok);">&#10003; You're verified.</span>Mothers can now be connected with you, and referrals will come through.</div>`;
+    return;
+  }
+  let banner = '';
+  if(s === 'pending'){
+    banner = `<div class="welcomeCard"><div class="badge wordmark">A</div><p>Your document is under review. We'll update this page once an admin has checked it -- you can also re-upload if you need to replace it.</p></div>`;
+  } else if(s === 'rejected'){
+    banner = `<div class="welcomeCard"><div class="badge wordmark">A</div><p>Your last submission wasn't approved${status.verification_note ? ': "' + status.verification_note + '"' : '.'} Please upload a new document.</p></div>`;
+  } else {
+    banner = `<div class="welcomeCard"><div class="badge wordmark">A</div><p>Upload a valid ID or credential document (license, certification, or similar) so mothers know you're genuine. An admin will review it before you appear in doctor listings or receive referrals.</p></div>`;
+  }
+  el.innerHTML = `
+    ${banner}
+    <div class="composer">
+      <label>Document (PDF, PNG, or JPG, up to 10MB)</label>
+      <input type="file" id="verifFile" accept=".pdf,.png,.jpg,.jpeg" style="margin-bottom:14px;">
+      <div class="err hidden" id="verifErr"></div>
+      <div class="composer-foot"><button class="primary" style="width:auto;padding:9px 20px;" onclick="uploadVerificationDoc()">Upload</button></div>
+    </div>`;
+}
+
+async function uploadVerificationDoc(){
+  const fileInput = document.getElementById('verifFile');
+  const errEl = document.getElementById('verifErr');
+  errEl.classList.add('hidden');
+  if(!fileInput.files.length){
+    errEl.textContent = 'Please choose a file first.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  try{
+    const res = await fetch(API + '/doctor/verification/document', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      body: formData,
+    });
+    if(!res.ok){
+      const e = await res.json().catch(()=>({detail:res.statusText}));
+      throw new Error(extractErrorMessage(e));
+    }
+    await renderDoctorVerification();
+  }catch(e){
+    errEl.textContent = e.message;
+    errEl.classList.remove('hidden');
+  }
+}
+
+/* ---------------- ADMIN ---------------- */
+async function renderStats(){
+  const view = document.getElementById('view');
+  const s = await api('/admin/stats');
+  view.innerHTML = `<h1 class="pageTitle">Overview</h1><p class="pageSub">How Amara is being used right now.</p>
+  <div class="stat-grid">
+    <div class="stat s1"><div class="num">${s.total_mothers}</div><div class="lbl">Mothers</div></div>
+    <div class="stat s2"><div class="num">${s.total_doctors}</div><div class="lbl">Doctors</div></div>
+    <div class="stat s3"><div class="num">${s.total_messages}</div><div class="lbl">Chat messages</div></div>
+    <div class="stat s4"><div class="num">${s.pending_referrals}</div><div class="lbl">Pending referrals</div></div>
+    <div class="stat s5"><div class="num">${s.distressed_messages}</div><div class="lbl">Flagged distressed</div></div>
+  </div>`;
+}
+async function renderUsers(){
+  const view = document.getElementById('view');
+  view.innerHTML = `<h1 class="pageTitle">Users</h1><p class="pageSub">Everyone on the platform.</p><div id="userTable"></div>`;
+  const users = await api('/admin/users');
+  document.getElementById('userTable').innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody>
+    ${users.map(u=>`<tr><td>${u.name}</td><td>${u.email}</td><td>${u.role}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+/* ---------------- ADMIN: DOCTOR VERIFICATIONS ---------------- */
+async function renderAdminVerifications(){
+  const view = document.getElementById('view');
+  view.innerHTML = `<h1 class="pageTitle">Doctor Verifications</h1><p class="pageSub">Review credential documents before a doctor can appear to mothers or receive referrals.</p><div id="verifTable"></div>`;
+  await loadAdminVerifications();
+}
+
+async function loadAdminVerifications(){
+  const docs = await api('/admin/doctor-verifications');
+  const el = document.getElementById('verifTable');
+  if(!docs.length){ el.innerHTML = `<div class="empty"><span class="big">No doctors yet.</span>Doctor sign-ups will show up here.</div>`; return; }
+  const statusClass = s => s === 'verified' ? 'normal' : (s === 'rejected' ? 'severe' : 'mild');
+  el.innerHTML = `<table><thead><tr><th>Doctor</th><th>Specialty</th><th>Status</th><th>Document</th><th></th></tr></thead><tbody>
+    ${docs.map(d=>`<tr>
+      <td>${d.name}<br><span style="color:var(--muted);font-size:12px;">${d.email}</span></td>
+      <td>${d.specialty || '—'}</td>
+      <td><span class="tagpill ${statusClass(d.verification_status)}"><span class="dot2"></span>${d.verification_status}</span></td>
+      <td>${d.has_document ? `<button class="ghost" onclick="viewVerificationDoc(${d.id})">View "${d.document_original_name || 'document'}"</button>` : '<span style="color:var(--muted);font-size:13px;">Not uploaded</span>'}</td>
+      <td>
+        ${d.verification_status !== 'verified' ? `<button class="ghost" onclick="decideVerification(${d.id}, 'approve')">Approve</button>` : ''}
+        ${d.verification_status !== 'rejected' ? `<button class="ghost" onclick="decideVerification(${d.id}, 'reject')">Reject</button>` : ''}
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+async function viewVerificationDoc(doctorId){
+  const res = await fetch(API + `/admin/doctor-verifications/${doctorId}/document`, {
+    headers: { 'Authorization': 'Bearer ' + TOKEN },
+  });
+  if(!res.ok){ alert('Could not load document.'); return; }
+  const blob = await res.blob();
+  window.open(URL.createObjectURL(blob), '_blank');
+}
+
+async function decideVerification(doctorId, action){
+  let note = null;
+  if(action === 'reject'){
+    note = prompt('Optional note for the doctor on why this was rejected:') || null;
+  }
+  try{
+    await api(`/admin/doctor-verifications/${doctorId}/${action}`, 'POST', { note });
+    await loadAdminVerifications();
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
